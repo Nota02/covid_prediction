@@ -16,7 +16,7 @@
 3) python3 -m venv venv
 4) source venv/bin/activate
 5) pip install -r requirements.txt
-6) model.pkl должен быть загружен отдельно - https://drive.google.com/file/d/1_EMmoB2qwy-tAM_n-MrkgM6CMarRqmOq/view?usp=drive_link и положен в домашнюю директорию проекта
+6) model.pkl должен быть загружен отдельно - https://drive.google.com/file/d/1_EMmoB2qwy-tAM_n-MrkgM6CMarRqmOq/view?usp=drive_link 
 7) uvicorn main:app --host 0.0.0.0 --port 8000 - ручной запуск
 
 Автоматический Запуск
