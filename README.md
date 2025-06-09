@@ -11,52 +11,35 @@
 
 #### Установка и запуск 
 
-git clone https://github.com/Nota02/covid_prediction.git
-cd covid_prediction
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-# model.pkl должен быть загружен отдельно - https://drive.google.com/file/d/1_EMmoB2qwy-tAM_n-MrkgM6CMarRqmOq/view?usp=drive_link 
-uvicorn main:app --host 0.0.0.0 --port 8000
+1) git clone https://github.com/Nota02/covid_prediction.git
+2) cd covid_prediction
+3) python3 -m venv venv
+4) source venv/bin/activate
+5) pip install -r requirements.txt
+6) model.pkl должен быть загружен отдельно - https://drive.google.com/file/d/1_EMmoB2qwy-tAM_n-MrkgM6CMarRqmOq/view?usp=drive_link и положен в домашнюю директорию проекта
+7) uvicorn main:app --host 0.0.0.0 --port 8000 - ручной запуск
 
-Создайте файл /etc/systemd/system/covid_api.service
-[Unit]
-Description=COVID Prediction FastAPI service
-After=network.target
-
-[Service]
-User=nota                        # <-- пользователь Linux
-Group=nota                       # <-- группа
-WorkingDirectory=/home/nota/covid_prediction   # <-- путь к проекту!
-Environment="PATH=/home/nota/covid_prediction/venv/bin"
-ExecStart=/home/nota/covid_prediction/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000 --workers 2
-
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-
-###Запуск
-sudo systemctl daemon-reload
-sudo systemctl start covid_api
-sudo systemctl enable covid_api
-sudo systemctl status covid_api
+Автоматический Запуск
+1) Перенесите файл covid_api.service в /etc/systemd/system/covid_api.service 
+2) sudo systemctl daemon-reload
+3) sudo systemctl start covid_api
+4) sudo systemctl enable covid_api
+5) sudo systemctl status covid_api
 
 ### 2. Frontend (Streamlit)
 --------------
 Локальный запуск
 --------------
-git clone https://github.com/Nota02/covid_prediction.git
-cd covid_prediction
-Необходимо изменить адрес api сервера в файле app.py
-pip install -r requirements.txt
-streamlit run app.py
+1) git clone https://github.com/Nota02/covid_prediction.git
+2) cd covid_prediction
+3) Необходимо изменить адрес api сервера в файле app.py
+4) pip install -r requirements.txt
+5) streamlit run app.py
 --------------
 Облачный запуск (Streamlit Cloud)
 --------------
-Перейдите на streamlit.io/cloud, подключите свой репозиторий.
-Укажи файл запуска: app.py
+1) Перейдите на streamlit.io/cloud, подключите свой репозиторий.
+2) Укажите файл запуска: app.py
 
 ### 3. Использование
 1) Откройте Streamlit (например, https://covidprediction-m4rggztwkk2heax32nq6md.streamlit.app/)
