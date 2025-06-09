@@ -23,10 +23,10 @@ date = st.date_input(
     "Дата прогноза",
     value=max_date + pd.Timedelta(days=1),
     min_value=min_date,
-    max_value=max_date + pd.Timedelta(days=60)  # можно выбрать на 2 месяца вперед
+    max_value=max_date + pd.Timedelta(days=60)  # на 2 месяца вперед
 )
 
-API_URL = "http://159.223.232.177:8000/predict"
+API_URL = "http://localhost:8000/predict"
 
 def get_confirmed_for_date(country, date):
     row = df[(df['Country/Region'] == country) & (df['Date'] == date)]
@@ -40,14 +40,15 @@ def get_confirmed_for_date(country, date):
         else:
             return 0
 
+if 'prediction' not in st.session_state:
+    st.session_state['prediction'] = None
+
 if st.button("Предсказать и показать на карте"):
     selected_date = pd.to_datetime(date)
 
-    # Находим последнее известное значение confirmed
     last_known_date = df[df['Country/Region'] == country]['Date'].max()
     confirmed = get_confirmed_for_date(country, last_known_date)
 
-    # Если пользователь выбрал дату из прошлого (которая есть в данных)
     if selected_date <= last_known_date:
         confirmed = get_confirmed_for_date(country, selected_date)
         dayofweek = selected_date.dayofweek
@@ -63,15 +64,22 @@ if st.button("Предсказать и показать на карте"):
         if response.status_code == 200:
             result = response.json()
             predicted_new_cases = int(result["predicted_new_cases"])
-            st.success(f"Реальный/ML прогноз новых случаев в {country} на {selected_date.date()}: {predicted_new_cases}")
+            st.session_state['prediction'] = {
+                "country": country,
+                "date": selected_date.date(),
+                "predicted_new_cases": predicted_new_cases,
+                "lat": lat,
+                "lon": lon
+            }
         else:
             st.error(f"Ошибка {response.status_code}: {response.text}")
-            predicted_new_cases = 0
+            st.session_state['prediction'] = None
 
     else:
-        # Итеративный прогноз: используем последний confirmed и прогнозируем вперёд
+        # Итеративный прогноз для будущей даты
         horizon = (selected_date - last_known_date).days
         curr_confirmed = confirmed
+        predicted_new_cases = 0
         for i in range(1, horizon + 1):
             pred_date = last_known_date + pd.Timedelta(days=i)
             payload = {
@@ -90,16 +98,25 @@ if st.button("Предсказать и показать на карте"):
                 st.error(f"Ошибка {response.status_code}: {response.text}")
                 predicted_new_cases = 0
                 break
-        st.success(f"ML прогноз новых случаев в {country} на {selected_date.date()}: {predicted_new_cases}")
+        st.session_state['prediction'] = {
+            "country": country,
+            "date": selected_date.date(),
+            "predicted_new_cases": predicted_new_cases,
+            "lat": lat,
+            "lon": lon
+        }
 
-    # Карта
-    m = folium.Map(location=[lat, lon], zoom_start=4, tiles='CartoDB dark_matter')
+# Всегда выводим карту, если есть сохранённый прогноз
+if st.session_state['prediction'] is not None:
+    pred = st.session_state['prediction']
+    st.success(f"Прогноз новых случаев в {pred['country']} на {pred['date']}: {pred['predicted_new_cases']}")
+    m = folium.Map(location=[pred['lat'], pred['lon']], zoom_start=4, tiles='CartoDB dark_matter')
     folium.CircleMarker(
-        location=[lat, lon],
-        radius=max(4, min(20, predicted_new_cases // 100)),
+        location=[pred['lat'], pred['lon']],
+        radius=max(4, min(20, pred['predicted_new_cases'] // 100)),
         color='red',
         fill=True,
         fill_opacity=0.6,
-        popup=f"{country}: {predicted_new_cases} новых случаев"
+        popup=f"{pred['country']}: {pred['predicted_new_cases']} новых случаев"
     ).add_to(m)
     st_folium(m, width=700, height=500)
