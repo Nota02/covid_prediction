@@ -22,7 +22,7 @@ date = st.date_input(
     "Дата прогноза",
     value=max_date + pd.Timedelta(days=1),
     min_value=min_date,
-    max_value=max_date + pd.Timedelta(days=60)  # на 2 месяца вперед
+    max_value=max_date + pd.Timedelta(days=60) 
 )
 
 API_URL = "http://159.223.232.177:8000/predict"
