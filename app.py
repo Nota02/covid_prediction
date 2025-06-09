@@ -8,7 +8,7 @@ df = pd.read_csv('covid_19_clean_complete.csv')
 df['Date'] = pd.to_datetime(df['Date'])
 df_countries = df.groupby('Country/Region').agg({'Lat':'mean', 'Long':'mean'}).reset_index()
 
-st.title("COVID-19 ML-прогноз: новые случаи по странам и датам (API)")
+st.title("COVID-19 прогноз: новые случаи по странам и датам")
 
 country = st.selectbox("Страна", df_countries['Country/Region'].sort_values())
 lat = float(df_countries[df_countries['Country/Region'] == country]['Lat'].iloc[0])
