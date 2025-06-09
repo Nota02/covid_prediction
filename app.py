@@ -4,7 +4,6 @@ import folium
 from streamlit_folium import st_folium
 import requests
 
-# Загружаем исторические данные
 df = pd.read_csv('covid_19_clean_complete.csv')
 df['Date'] = pd.to_datetime(df['Date'])
 df_countries = df.groupby('Country/Region').agg({'Lat':'mean', 'Long':'mean'}).reset_index()
@@ -33,7 +32,6 @@ def get_confirmed_for_date(country, date):
     if not row.empty:
         return int(row['Confirmed'].iloc[0])
     else:
-        # Если нет данных на эту дату — берём последнее известное значение
         previous = df[(df['Country/Region'] == country) & (df['Date'] < date)].sort_values('Date')
         if not previous.empty:
             return int(previous['Confirmed'].iloc[-1])
@@ -76,7 +74,6 @@ if st.button("Предсказать и показать на карте"):
             st.session_state['prediction'] = None
 
     else:
-        # Итеративный прогноз для будущей даты
         horizon = (selected_date - last_known_date).days
         curr_confirmed = confirmed
         predicted_new_cases = 0
@@ -106,7 +103,6 @@ if st.button("Предсказать и показать на карте"):
             "lon": lon
         }
 
-# Всегда выводим карту, если есть сохранённый прогноз
 if st.session_state['prediction'] is not None:
     pred = st.session_state['prediction']
     st.success(f"Прогноз новых случаев в {pred['country']} на {pred['date']}: {pred['predicted_new_cases']}")
