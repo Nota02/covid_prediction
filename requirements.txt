@@ -1,0 +1,9 @@
+treamlit
+joblib
+pandas
+folium
+streamlit-folium
+scikit-learn
+fastapi
+uvicorn
+
