@@ -25,7 +25,7 @@ date = st.date_input(
     max_value=max_date + pd.Timedelta(days=60) 
 )
 
-API_URL = "http://159.223.232.177:8000/predict"
+API_URL = "http://localhost:8000/predict"
 
 def get_confirmed_for_date(country, date):
     row = df[(df['Country/Region'] == country) & (df['Date'] == date)]
